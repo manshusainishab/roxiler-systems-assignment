@@ -1,14 +1,15 @@
 const express = require('express');
 const axios = require('axios');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const Transaction = require('./models/Transaction');
 const transactionRoutes = require('./routes/transactionRoutes');
-const dotenv = require('dotenv');
+require('dotenv').config();
 
 const app = express();
-const port = 5001;
+const port = process.env.PORT || 5001;
 
-mongoose.connect("mongodb+srv://manshus23csai:Manshu%40786@cluster0.r64pw.mongodb.net/roxiler?retryWrites=true&w=majority&appName=Cluster0", {
+mongoose.connect(process.env.DATABASEURL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => {
@@ -47,8 +48,23 @@ async function initializeDatabase() {
 
 initializeDatabase();
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://your-frontend-domain.com',
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+}));
+
 app.use('/api', transactionRoutes);
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on https://roxiler-systems-assignment-nb2f.onrender.com:${port}`);
 });
